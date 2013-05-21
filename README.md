@@ -1,12 +1,12 @@
-# Racl::Mvc
+# Racl::Rails
 
-TODO: Write a gem description
+This Gem is based on the RACL gem and eases the integration of RACL with Rails
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'racl-mvc'
+    gem 'racl-rails'
 
 And then execute:
 
@@ -14,7 +14,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install racl-mvc
+    $ gem install racl-rails
 
 ## Usage
 
