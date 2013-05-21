@@ -3,7 +3,7 @@ require "racl-rails/version"
 module Racl
   module Rails
     def self.include(base)
-      base.send(:prepend_before_filter, :do_racl)
+      base.send(:before_filter, :do_racl)
     end
 
     def initialize
@@ -42,7 +42,15 @@ module Racl
           else
             acl.allow(role, resource, privilege)
           end
-       }
+        }
+      end
+
+      role = current_user.nil? ? 'guest' : (current_user.is_admin? ? 'admin' : 'user')
+      if acl.is_allowed?(role, resource, params[:action])
+        return
+      else
+        redirect_to # Something here
+      end
     end
   end
 end
