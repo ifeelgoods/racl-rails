@@ -8,8 +8,8 @@ Gem::Specification.new do |gem|
   gem.version       = Racl::Rails::VERSION
   gem.authors       = ["peteygao"]
   gem.email         = ["tech@ifeelgoods.com"]
-  gem.description   = "The companion gem to Racl which eases integration with Rails"
-  gem.summary       = "The companion gem to Racl which eases integration with Rails"
+  gem.description   = "The companion gem to RACL (Ruby ACL gem) which eases integration with Rails."
+  gem.summary       = "The companion gem to RACL which eases integration with Rails."
   gem.homepage      = "https://github.com/ifeelgoods/racl-rails"
 
   gem.files         = `git ls-files`.split($/)

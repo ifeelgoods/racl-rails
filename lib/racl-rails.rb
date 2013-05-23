@@ -2,7 +2,7 @@ require "racl-rails/version"
 
 module Racl
   module Rails
-    def self.include(base)
+    def self.included(base)
       base.send(:before_filter, :do_racl)
     end
 
@@ -11,9 +11,9 @@ module Racl
     end
 
     def do_racl
-      if defined? @@RACL_CONFIG
-        racl = @@RACL_CONFIG
-      else
+      begin
+        racl = self.class.class_variable_get(:@@RACL_CONFIG)
+      rescue NameError => e
         return
       end
 
@@ -28,28 +28,34 @@ module Racl
         else
           acl.add_role(role)
         end
+
+        if !acl_fields[:privileges].nil?
+          acl_fields[:privileges].each { |privilege, assertions|
+            privilege = privilege
+
+            if !assertions.nil?
+              if assertions.is_a? Array
+                assertion.each { |assertion|
+                  assert_obj = assertion
+                  assertion = assert_obj.new(params)
+                  acl.allow(role, resource, privilege, assertion)
+                }
+              else
+                assertion = assertions.new(params)
+                acl.allow(role, resource, privilege, assertion)
+              end
+            else
+              acl.allow(role, resource, privilege)
+            end
+          }
+        end
       }
 
-      if !acl_fields[:acl].nil?
-        privileges = acl_fields[:acl]
-        privileges.each { |arr|
-          privilege = arr[:privilege]
-
-          if arr[:assertion]
-            assert_obj = arr[:assertion]
-            assertion = assert_obj.new(params)
-            acl.allow(role, resource, privilege, assertion)
-          else
-            acl.allow(role, resource, privilege)
-          end
-        }
-      end
-
-      role = current_user.nil? ? 'guest' : (current_user.is_admin? ? 'admin' : 'user')
-      if acl.is_allowed?(role, resource, params[:action])
+      role = current_account.nil? ? 'guest' : (current_account.admin? ? 'admin' : 'user')
+      if acl.is_allowed?(role, resource, params[:action].to_sym)
         return
       else
-        redirect_to # Something here
+        render_result(status: 403)
       end
     end
   end
