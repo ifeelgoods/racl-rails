@@ -1,6 +1,6 @@
-# Racl::Rails
+# RACL-Rails
 
-This Gem is based on the RACL gem and eases the integration of RACL with Rails
+This gem extends the RACL gem and eases the integration of RACL with Rails.
 
 ## Installation
 
