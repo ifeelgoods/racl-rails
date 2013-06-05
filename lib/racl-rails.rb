@@ -34,15 +34,12 @@ module Racl
             privilege = privilege
 
             if !assertions.nil?
-              if assertions.is_a? Array
+              if assertions.is_a? Hash
                 assertion.each { |assertion|
-                  assert_obj = assertion
-                  assertion = assert_obj.new(current_account, params)
                   acl.allow(role, resource, privilege, assertion)
                 }
               else
-                assertion = assertions.new(current_account, params)
-                acl.allow(role, resource, privilege, assertion)
+                acl.allow(role, resource, privilege, assertions)
               end
             else
               acl.allow(role, resource, privilege)
