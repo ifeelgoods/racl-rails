@@ -37,11 +37,11 @@ module Racl
               if assertions.is_a? Array
                 assertion.each { |assertion|
                   assert_obj = assertion
-                  assertion = assert_obj.new(params)
+                  assertion = assert_obj.new(current_account, params)
                   acl.allow(role, resource, privilege, assertion)
                 }
               else
-                assertion = assertions.new(params)
+                assertion = assertions.new(current_account, params)
                 acl.allow(role, resource, privilege, assertion)
               end
             else
