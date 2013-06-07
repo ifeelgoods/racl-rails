@@ -16,6 +16,10 @@ module Racl
       rescue NameError => e
         return
       end
+      
+      if racl.nil?
+        return
+      end
 
       acl = Racl::Acl.new
       resource = Racl::Resource::Generic.new(params[:controller])
@@ -52,6 +56,8 @@ module Racl
       if acl.is_allowed?(role, resource, params[:action].to_sym)
         return
       else
+        @result[:status] = 942
+        @result[:error_message] = "You do not have access."
         render_result(status: 403)
       end
     end
