@@ -52,7 +52,7 @@ module Racl
         end
       }
 
-      role = current_account.nil? ? 'guest' : (current_account.admin? ? 'admin' : 'user')
+      role = current_account.guest? ? 'guest' : (current_account.admin? ? 'admin' : 'user')
       if acl.is_allowed?(role, resource, params[:action].to_sym)
         return
       else
