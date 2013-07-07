@@ -1,71 +1,53 @@
 require "racl-rails/version"
+require 'racl-rails/racl_c'
+require 'racl-rails/exception_unauthorized'
+
 
 module Racl
   module Rails
+
     def self.included(base)
-      base.send(:before_filter, :do_racl)
+      base.extend ClassMethods
     end
 
-    def initialize
-      super
+    module ClassMethods
+      # privileges :
+      # a symbol is the method allowed
+      # a hash {:symbol => privileges } is the block to call to get the racl
+      # if a role is not define, no privileges will be given to him
+
+      def racl
+        @racl
+      end
+
+      def acl_user(privileges)
+        @racl ||= Racl_c.new
+        @racl.role_acl(:user, privileges)
+      end
+
+      def acl_admin(privileges)
+        @racl ||= Racl_c.new
+        @racl.role_acl(:admin, privileges)
+      end
+
+      def acl_guest(privileges)
+        @racl ||= Racl_c.new
+        @racl.role_acl(:guest, privileges)
+      end
+
+      def acl_to_json
+        @racl.acl_to_json
+      end
+
     end
 
     def do_racl
-      begin
-        racl = self.class.class_variable_get(:@@RACL_CONFIG)
-      rescue NameError => e
-        return
-      end
-      
-      if racl.nil?
-        return
-      end
+      return Racl_c.return_unauthorized unless self.class.racl
 
-      acl = Racl::Acl.new
-      resource = Racl::Resource::Generic.new(params[:controller])
-      acl.add_resource(resource)
-      
-      racl[:roles].each { |role_name, acl_fields|
-        role = Racl::Role::Generic.new(role_name)
-        if !acl_fields[:inherits].nil?
-          acl.add_role(role, acl_fields[:inherits])
-        else
-          acl.add_role(role)
-        end
+      self.class.racl.do_racl(current_account, params)
 
-        if !acl_fields[:privileges].nil?
-          acl_fields[:privileges].each { |privilege, assertions|
-            privilege = privilege
-
-            if !assertions.nil?
-              if assertions.is_a? Hash
-                assertion.each { |assertion|
-                  acl.allow(role, resource, privilege, assertion)
-                }
-              else
-                acl.allow(role, resource, privilege, assertions)
-              end
-            else
-              acl.allow(role, resource, privilege)
-            end
-          }
-        end
-      }
-
-      role = current_account.guest? ? 'guest' : (current_account.admin? ? 'admin' : 'user')
-      if acl.is_allowed?(role, resource, params[:action].to_sym)
-        return
-      else
-        @result[:status] = 942
-        @result[:error_message] = "You do not have access."
-        render_result(status: 403)
-      end
     end
-  end
-end
 
-if defined? ActionController::Base
-  ActionController::Base.class_eval do
-    include Racl::Rails
+
   end
 end

@@ -1,0 +1,3 @@
+class ExceptionUnauthorized < Exception
+
+end
