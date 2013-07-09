@@ -6,10 +6,10 @@ require 'racl/version'
 Gem::Specification.new do |gem|
   gem.name          = "racl"
   gem.version       = Racl::VERSION
-  gem.authors       = ["peteygao"]
+  gem.authors       = ["peteygao", "mtparet"]
   gem.email         = ["tech@ifeelgoods.com"]
-  gem.description   = "The companion gem to RACL (Ruby ACL gem) which eases integration with Rails."
-  gem.summary       = "The companion gem to RACL which eases integration with Rails."
+  gem.description   = "Gem which eases integration of RACL with Rails."
+  gem.summary       = "Gem which eases integration of RACL with Rails."
   gem.homepage      = "https://github.com/ifeelgoods/racl-rails"
 
   gem.files         = `git ls-files`.split($/)
