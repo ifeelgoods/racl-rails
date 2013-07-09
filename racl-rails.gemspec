@@ -1,11 +1,11 @@
 # -*- encoding: utf-8 -*-
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'racl-rails/version'
+require 'racl/version'
 
 Gem::Specification.new do |gem|
-  gem.name          = "racl-rails"
-  gem.version       = Racl::Rails::VERSION
+  gem.name          = "racl"
+  gem.version       = Racl::VERSION
   gem.authors       = ["peteygao"]
   gem.email         = ["tech@ifeelgoods.com"]
   gem.description   = "The companion gem to RACL (Ruby ACL gem) which eases integration with Rails."
