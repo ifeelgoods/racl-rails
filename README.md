@@ -1,4 +1,4 @@
-RACL
+# RACL-Rails
 
 This gem eases the integration of RACL with Rails.
 
@@ -6,7 +6,7 @@ This gem eases the integration of RACL with Rails.
 
 Add this line to your application's Gemfile:
 
-    gem 'racl'
+    gem 'racl-rails'
 
 And then execute:
 
@@ -16,7 +16,7 @@ And then execute:
 
 you need to include the module with:
 
-include Racl
+include Racl::Rails
 
 Add the follow before_filter to check ACL before the code in th
 action of the controller is executed.

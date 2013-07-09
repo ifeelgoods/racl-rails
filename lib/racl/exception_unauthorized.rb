@@ -1,4 +1,6 @@
 module Racl
-  class ExceptionUnauthorized < Exception
+  module Rails
+    class ExceptionUnauthorized < Exception
+    end
   end
 end
