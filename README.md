@@ -60,6 +60,29 @@ rescue_from ExceptionUnauthorized do
 end
 ```
 
+In an initializers, specify the role you want to use
+
+```ruby
+Racl::Rails::Configuration.authorized_roles = [:admin, :user]
+
+Racl::Rails::Configuration.role_lambda = lambda{ |current_account|
+  return nil unless current_account
+  return :admin if current_account.admin?
+  return :user
+}
+```
+
+We suppose params and current_account method available, if this this not the case
+implement a custom before_filter to specify this variable like this:
+
+```ruby
+before_filter :custom_racl
+
+def custom_racl
+    do_racl(current_user, params)
+end
+```
+
 
 No rules defined for an action => no access allowed.
 
