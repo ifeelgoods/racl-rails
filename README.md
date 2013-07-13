@@ -16,9 +16,9 @@ And then execute:
 
 you need to include the module with:
 
-include Racl::Rails
+`include Racl::Rails`
 
-Add the follow before_filter to check ACL before the code in th
+Add the following before_filter to check ACL before the code in the
 action of the controller is executed.
 
 ```ruby
@@ -27,7 +27,7 @@ action of the controller is executed.
 
 To configure a role you can use:
 
-acl_user, acl_admin, acl_guest
+`acl_user, acl_admin, acl_guest`
 
 or the basic method `acl_role` with which you need to specify the role.
 
@@ -49,6 +49,19 @@ Example:
 ```ruby
     acl_role(:guest, show: true)
 ```
+
+If the role trying to access to the resource is not allowed a ExceptionUnauthorized
+exception will be raised.
+Catch it to render whatever you want in this case:
+
+```ruby
+rescue_from ExceptionUnauthorized do
+  # render 403
+end
+```
+
+
+No rules defined for an action => no access allowed.
 
 ## Contributing
 
