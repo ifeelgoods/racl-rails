@@ -2,6 +2,11 @@ module Racl
   module Rails
     class Configuration
 
+      class << self
+        attr_accessor :authorized_roles
+        attr_accessor :role_lambda
+      end
+
       attr_reader :acl_privileges
 
       def initialize
@@ -40,7 +45,7 @@ module Racl
       # check of the set up
       def check_set_up(privileges)
         authorized_privileges_config = [Hash]
-        authorized_roles = [:admin, :user, :guest]
+        authorized_roles = self.authorized_roles || [:admin, :user, :guest]
         authorized_keys_config = [:privileges, :inherit]
 
         # check role

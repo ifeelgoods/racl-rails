@@ -21,7 +21,7 @@ module Racl
         end
 
         # convenient way should be configured in the application
-        role = current_account.guest? ? :guest : (current_account.admin? ? :admin : :user)
+        role = get_role(current_account)
 
         role_privileges = configuration.acl_privileges[role.to_sym]
 
@@ -67,6 +67,11 @@ module Racl
         return
       end
 
+      private
+
+      def get_role(current_account)
+        Configuration.role_lambda.call(current_account)
+      end
     end
   end
 
