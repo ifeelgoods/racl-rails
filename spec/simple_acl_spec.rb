@@ -1,5 +1,5 @@
 require 'spec_helper'
 
-describe Racl::Rails do
+describe SimpleAcl do
 
 end

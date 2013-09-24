@@ -1,2 +1,2 @@
 $:.push(File.expand_path("../../lib", __FILE__))
-require 'simple_racl'
+require 'simple_acl'

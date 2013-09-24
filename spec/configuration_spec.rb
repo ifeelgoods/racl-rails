@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Racl::Rails::Configuration do
+describe SimpleAcl::Configuration do
 
   describe "add_role" do
     context "all values are good" do

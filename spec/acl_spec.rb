@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Racl::Rails::Racl do
+describe SimpleAcl::Acl do
 
-  describe "#do_racl" do
+  describe "#do_acl" do
 
   end
 

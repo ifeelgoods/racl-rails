@@ -1,4 +1,4 @@
-module SimpleRacl
+module SimpleAcl
   class Configuration
 
     class << self

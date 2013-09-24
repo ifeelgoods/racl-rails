@@ -1,4 +1,4 @@
-# SimpleRacl
+# SimpleAcl
 
 This gem eases the implementation of RACL with Rails.
 
@@ -8,7 +8,7 @@ No acl defined for an action => no access allowed.
 
 Add this line to your application's Gemfile:
 
-    gem 'simple_racl'
+    gem 'simple_acl'
 
 And then execute:
 
@@ -18,16 +18,16 @@ And then execute:
 
 You need to include the main module:
 
-`include SimpleRacl`
+`include SimpleAcl`
 
 You need to define the current_role with a before filter.
 And you have the possibility to define values which will be passed
 into your custom validations.
 
 ```ruby
-  def setup_racl
-    self.racl_current_role = current_user? :user : :guest
-    self.racl_values = {:current_user => current_user, :id => params['id']}
+  def setup_acl
+    self.acl_current_role = current_user? :user : :guest
+    self.acl_values = {:current_user => current_user, :id => params['id']}
   end
 ```
 
@@ -35,7 +35,7 @@ After this configuration, add the following before_filter to check ACL
 before the execution of the code in the action.
 
 ```ruby
-  before_filter :do_racl
+  before_filter :do_acl
 ```
 
 To configure the ability of a role you can use:
@@ -76,7 +76,7 @@ end
 In an initializers, you can specify the role you want to use.
 (defaults are :admin, :user, :guest)
 
-`SimpleRacl::Configuration.authorized_roles = [:admin, :user]
+`SimpleAcl::Configuration.authorized_roles = [:admin, :user]
 
 ```
 

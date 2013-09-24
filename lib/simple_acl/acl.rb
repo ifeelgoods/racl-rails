@@ -1,8 +1,8 @@
-require 'simple_racl/configuration'
-require 'simple_racl/exception_unauthorized'
+require 'simple_acl/configuration'
+require 'simple_acl/exception_unauthorized'
 
-module SimpleRacl
-  class Racl
+module SimpleAcl
+  class Acl
 
     attr_reader :configuration
 
@@ -10,7 +10,7 @@ module SimpleRacl
       @configuration = Configuration.new
     end
 
-    def do_racl(current_role, action, values)
+    def check_acl(current_role, action, values)
 
       return self.class.unauthorized unless configuration && current_role
 
@@ -20,10 +20,10 @@ module SimpleRacl
 
       assertion = role_privileges[action.to_sym]
 
-      self.class.do_assertion(assertion, current_role, values)
+      self.class.assert(assertion, current_role, values)
     end
 
-    def self.do_assertion(assertion, current_role, values)
+    def self.assert(assertion, current_role, values)
 
       # not FalseClass or nil
       return unauthorized unless assertion
@@ -32,7 +32,7 @@ module SimpleRacl
 
       if assertion.class == Proc && assertion.lambda?
         assertion_result = assertion.call(current_role, values)
-        return do_assertion(assertion_result, current_role, values)
+        return assert(assertion_result, current_role, values)
       end
 
       unauthorized
