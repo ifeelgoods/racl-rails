@@ -2,61 +2,37 @@ module Racl
   module Rails
     class Racl
 
-      attr_reader :current_account, :params, :configuration
+      attr_reader :configuration
 
       def initialize
         @configuration = Configuration.new
       end
 
-      def do_racl(current_account, params)
-        @current_account = current_account
-        @params = params
+      def do_racl(current_role, action, values)
 
-        if configuration.nil?
-          return self.class.return_unauthorized
-        end
+        return self.class.return_unauthorized if configuration.nil? || current_role.nil?
 
-        if current_account.nil?
-          return self.class.return_unauthorized
-        end
+        role_privileges = configuration.acl_privileges[current_role.to_sym]
 
-        # convenient way should be configured in the application
-        role = get_role(current_account)
-
-        role_privileges = configuration.acl_privileges[role.to_sym]
-
-        if role_privileges.nil?
-          return self.class.return_unauthorized
-        end
-
-        action = params[:action]
+        return self.class.return_unauthorized if role_privileges.nil?
 
         assertion = role_privileges[action.to_sym]
 
-        do_assertion(assertion)
-
+        self.class.do_assertion(assertion, current_role, values)
       end
 
+      def self.do_assertion(assertion, current_role, values)
 
-      def do_assertion(assertion)
-        if assertion.nil?
-          return self.class.return_unauthorized
-        end
+        return return_unauthorized if assertion.nil? || assertion.class == FalseClass
 
-        if assertion.class == TrueClass
-          return self.class.return_authorized
-        end
-
-        if assertion.class == FalseClass
-          return self.class.return_unauthorized
-        end
+        return return_authorized if assertion.class == TrueClass
 
         if (assertion.class == Proc) && assertion.lambda?
-          assertion_result = assertion.call(current_account, params)
-          return do_assertion(assertion_result)
+          assertion_result = assertion.call(current_role, values)
+          return do_assertion(assertion_result, current_role, values)
         end
 
-        self.class.return_unauthorized
+        return_unauthorized
       end
 
       def self.return_unauthorized
@@ -67,12 +43,6 @@ module Racl
         return
       end
 
-      private
-
-      def get_role(current_account)
-        Configuration.role_lambda.call(current_account)
-      end
     end
   end
-
 end

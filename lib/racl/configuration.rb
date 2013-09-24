@@ -4,7 +4,6 @@ module Racl
 
       class << self
         attr_accessor :authorized_roles
-        attr_accessor :role_lambda
       end
 
       attr_reader :acl_privileges
@@ -27,7 +26,8 @@ module Racl
         # add inherits, with the merge this way we keep previous rules
         @acl_privileges[role] = privileges[:inherit].merge(@acl_privileges[role]) if privileges[:inherit]
 
-        # do a deep freeze one day
+        # deep freeze
+        sup_freeze(@acl_privileges[role])
       end
 
       private
@@ -45,7 +45,7 @@ module Racl
       # check of the set up
       def check_set_up(privileges)
         authorized_privileges_config = [Hash]
-        authorized_roles = self.authorized_roles || [:admin, :user, :guest]
+        authorized_roles = authorized_roles || [:admin, :user, :guest]
         authorized_keys_config = [:privileges, :inherit]
 
         # check role
@@ -70,6 +70,24 @@ module Racl
       def check_assertion(assertion)
         authorized_assertion = [TrueClass, FalseClass, Proc]
         raise "Unauthorized assertion #{assertion.class}" unless authorized_assertion.include?(assertion.class)
+      end
+
+      # do a recursive freeze on Array and Hash
+      def sup_freeze(option)
+        option.freeze
+
+        if option.class == Hash
+          option.each do |k,v|
+            sup_freeze(option[k])
+          end
+
+        elsif option.class == Array
+          option.each do |v|
+            sup_freeze(v)
+          end
+        end
+
+        true
       end
     end
   end
