@@ -1,31 +1,44 @@
-# RACL-Rails
+# SimpleRacl
 
 This gem eases the integration of RACL with Rails.
+
+No acl defined for an action => no access allowed.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'racl-rails'
+    gem 'simple_racl'
 
 And then execute:
 
-    $ bundle
+    $ bundle install
 
 ## Usage
 
-you need to include the module with:
+You need to include the module with:
 
-`include Racl::Rails`
+`include SimpleRacl`
 
-Add the following before_filter to check ACL before the code in the
-action of the controller is executed.
+You need to define the current_role with a before filter.
+And you have the possibility to define values which will be passed
+into your custom validations.
+
+```ruby
+  def setup_racl
+    self.racl_current_role = current_user? :user : :guest
+    self.racl_values = {:current_user => current_user, :id => params['id]}
+  end
+```
+
+After this configuration, add the following before_filter to check ACL
+before the execution of the code in the action.
 
 ```ruby
   before_filter :do_racl
 ```
 
-To configure a role you can use:
+To configure the ability of a role you can use:
 
 `acl_user, acl_admin, acl_guest`
 
@@ -60,31 +73,13 @@ rescue_from ExceptionUnauthorized do
 end
 ```
 
-In an initializers, specify the role you want to use
+In an initializers, you can specify the role you want to use.
+(defaults are :admin, :user, :guest)
 
 ```ruby
 Racl::Rails::Configuration.authorized_roles = [:admin, :user]
 
-Racl::Rails::Configuration.role_lambda = lambda{ |current_account|
-  return nil unless current_account
-  return :admin if current_account.admin?
-  return :user
-}
 ```
-
-We suppose params and current_account method available, if this this not the case
-implement a custom before_filter to specify this variable like this:
-
-```ruby
-before_filter :custom_racl
-
-def custom_racl
-    do_racl(current_user, params)
-end
-```
-
-
-No rules defined for an action => no access allowed.
 
 ## Contributing
 
