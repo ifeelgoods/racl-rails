@@ -2,7 +2,11 @@ module SimpleRacl
   class Configuration
 
     class << self
-      attr_accessor :authorized_roles
+      attr_writer :authorized_roles
+
+      def authorized_roles
+        @authorized_roles ||= [:admin, :user, :guest]
+      end
     end
 
     attr_reader :acl_privileges
@@ -12,81 +16,40 @@ module SimpleRacl
     end
 
     def add_role(role, privileges)
-      privileges = add_inherit(privileges)
-      check_set_up(role => privileges)
+      raise "Unauthorized role #{role}" unless self.class.authorized_roles.include?(role)
+      raise 'Inherit specified is not defined previously' if privileges[:inherit] && !@acl_privileges[privileges[:inherit]]
 
-      @acl_privileges[role] ||= {}
+      @acl_privileges[role] = (@acl_privileges[privileges[:inherit]] || {}).merge(privileges[:privileges] || {})
 
-      # rules priority: allow > inherit
+      check_set_up(@acl_privileges[role])
 
-      # add privileges
-      @acl_privileges[role] = privileges[:privileges] if privileges[:privileges]
-
-      # add inherits, with the merge this way we keep previous rules
-      @acl_privileges[role] = privileges[:inherit].merge(@acl_privileges[role]) if privileges[:inherit]
-
-      # deep freeze
-      sup_freeze(@acl_privileges[role])
+      deep_freeze!(@acl_privileges[role])
     end
 
     private
 
-    # add previous privileges defined into the configuration
-    def add_inherit(privileges)
-      if privileges[:inherit]
-        raise 'Unauthorized inherit class type (only Symbol is allowed)' if privileges[:inherit].class != Symbol
-        raise 'Inherit specified is not defined previously' unless @acl_privileges[privileges[:inherit]]
-        privileges[:inherit] = @acl_privileges[privileges[:inherit]]
-      end
-      privileges
-    end
-
     # check of the set up
     def check_set_up(privileges)
-      authorized_privileges_config = [Hash]
-      authorized_roles = authorized_roles || [:admin, :user, :guest]
-      authorized_keys_config = [:privileges, :inherit]
-
-      # check role
-      privileges.keys.each do |role|
-        raise "Unauthorized role #{role}" unless authorized_roles.include?(role)
-
-        # check config keys
-        privileges[role].keys.each do |config_key|
-          raise "Unauthorized privilege #{config_key}" unless authorized_keys_config.include?(config_key)
-
-          # check if this config is a hash
-          raise "Unauthorized privilege #{privileges[role][config_key]}" unless authorized_privileges_config.include?(privileges[role][config_key].class)
-
-          privileges[role][config_key].keys.each do |action|
-            action_assertion = privileges[role][config_key][action]
-            check_assertion(action_assertion)
-          end
-        end
-      end
+      privileges.keys.each{|action| check_assertion(privileges[action]) }
     end
 
     def check_assertion(assertion)
-      authorized_assertion = [TrueClass, FalseClass, Proc]
-      raise "Unauthorized assertion #{assertion.class}" unless authorized_assertion.include?(assertion.class)
+      return if assertion.class == Proc && assertion.lambda?
+      raise "Not usuable assertion type : #{assertion.class}" unless [TrueClass, FalseClass].include?(assertion.class)
     end
 
     # do a recursive freeze on Array and Hash
-    def sup_freeze(option)
+    def deep_freeze!(option)
       option.freeze
 
-      if option.class == Hash
-        option.each do |k, v|
-          sup_freeze(option[k])
-        end
-
-      elsif option.class == Array
-        option.each do |v|
-          sup_freeze(v)
-        end
+      case option.class
+        when Hash
+          option.each{|k, v| deep_freeze(option[k]) }
+        when Array
+          option.each{|v| deep_freeze(v) }
+        else
       end
-
-      true
     end
+
   end
 end

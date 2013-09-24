@@ -53,7 +53,7 @@ module SimpleRacl
   end
 
   def do_racl
-    return Racl.return_unauthorized unless self.class.racl
+    return Racl.unauthorized unless self.class.racl
 
     self.class.racl.do_racl(racl_current_role, params[:action], racl_values)
 

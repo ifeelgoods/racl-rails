@@ -1,6 +1,6 @@
 # SimpleRacl
 
-This gem eases the integration of RACL with Rails.
+This gem eases the implementation of RACL with Rails.
 
 No acl defined for an action => no access allowed.
 
@@ -16,7 +16,7 @@ And then execute:
 
 ## Usage
 
-You need to include the module with:
+You need to include the main module:
 
 `include SimpleRacl`
 
@@ -27,7 +27,7 @@ into your custom validations.
 ```ruby
   def setup_racl
     self.racl_current_role = current_user? :user : :guest
-    self.racl_values = {:current_user => current_user, :id => params['id]}
+    self.racl_values = {:current_user => current_user, :id => params['id']}
   end
 ```
 
@@ -76,8 +76,7 @@ end
 In an initializers, you can specify the role you want to use.
 (defaults are :admin, :user, :guest)
 
-```ruby
-Racl::Rails::Configuration.authorized_roles = [:admin, :user]
+`SimpleRacl::Configuration.authorized_roles = [:admin, :user]
 
 ```
 

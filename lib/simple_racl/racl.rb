@@ -12,11 +12,11 @@ module SimpleRacl
 
     def do_racl(current_role, action, values)
 
-      return self.class.return_unauthorized if configuration.nil? || current_role.nil?
+      return self.class.unauthorized unless configuration && current_role
 
       role_privileges = configuration.acl_privileges[current_role.to_sym]
 
-      return self.class.return_unauthorized if role_privileges.nil?
+      return self.class.unauthorized unless role_privileges
 
       assertion = role_privileges[action.to_sym]
 
@@ -25,24 +25,25 @@ module SimpleRacl
 
     def self.do_assertion(assertion, current_role, values)
 
-      return return_unauthorized if assertion.nil? || assertion.class == FalseClass
+      # not FalseClass or nil
+      return unauthorized unless assertion
 
-      return return_authorized if assertion.class == TrueClass
+      return authorized if assertion.class == TrueClass
 
-      if (assertion.class == Proc) && assertion.lambda?
+      if assertion.class == Proc && assertion.lambda?
         assertion_result = assertion.call(current_role, values)
         return do_assertion(assertion_result, current_role, values)
       end
 
-      return_unauthorized
+      unauthorized
     end
 
-    def self.return_unauthorized
+    def self.unauthorized
       raise ExceptionUnauthorized
     end
 
-    def self.return_authorized
-      return
+    def self.authorized
+      true
     end
 
   end
