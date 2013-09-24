@@ -11,7 +11,8 @@ Gem::Specification.new do |gem|
   gem.description   = 'Simple Gem to use ACL in Rails based on a role given. Great use with Devise.'
   gem.summary       = 'Simple Gem to implement ACL in Rails based on a role given.'
   gem.homepage      = 'https://github.com/ifeelgoods/racl-rails'
-
   gem.files         = Dir['RELEASENOTES', 'README.md', 'lib/**/*']
   gem.require_path = 'lib'
+
+  spec.add_development_dependency 'rspec', '~> 2.14'
 end
