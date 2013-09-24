@@ -1,4 +1,6 @@
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in racl-mvc.gemspec
-gemspec
+group :development do
+  gem 'rspec', '~> 2.14'
+end
+
