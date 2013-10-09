@@ -6,10 +6,6 @@ module SimpleAcl
   end
 
   module ClassMethods
-    # privileges :
-    # a symbol is the method allowed
-    # a hash {:symbol => privileges } is the block to call to get the simple_acl
-    # if a role is not define, no privileges will be given to him
 
     def acl
       @acl ||= Acl.new
@@ -37,25 +33,38 @@ module SimpleAcl
   end
 
   def acl_values=(values)
-    Thread.current['acl_values'] = values
+    Thread.current[:acl_values] = values
   end
 
   def acl_values
-    Thread.current['acl_values']
+    Thread.current[:acl_values] ||= defined?(params) ? params : nil
   end
 
   def acl_current_role=(current_role)
-    Thread.current['acl_current_role'] = current_role
+    Thread.current[:acl_current_role] = current_role
   end
 
   def acl_current_role
-    Thread.current['acl_current_role']
+    Thread.current[:acl_current_role] ||= defined?(current_role) ? current_role : nil
+  end
+
+  def acl_action=(action)
+    Thread.current[:acl_action] = action
+  end
+
+  def acl_action
+    Thread.current[:acl_action] ||= (defined?(params) && params.is_a?(Hash)) ? params[:action] : nil
   end
 
   def do_acl
     return Acl.unauthorized unless self.class.acl
 
-    self.class.acl.check_acl(acl_current_role, params[:action], acl_values)
-
+    begin
+      self.class.acl.check_acl(acl_current_role, params[:action], acl_values)
+    ensure
+      Thread.current[:acl_action] = nil
+      Thread.current[:acl_current_role] = nil
+      Thread.current[:acl_values] = nil
+    end
   end
 end
